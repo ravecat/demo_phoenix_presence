@@ -75,6 +75,14 @@ defmodule DemoPhoenixPresenceWeb.UserAuth do
     end
   end
 
+  def put_user_token(%{assigns: %{current_scope: %{user: user}}} = conn, _) do
+    token = Phoenix.Token.sign(conn, "user socket", user.id)
+
+    assign(conn, :user_token, token)
+  end
+
+  def put_user_token(conn, _), do: conn
+
   defp ensure_user_token(conn) do
     if token = get_session(conn, :user_token) do
       {token, conn}

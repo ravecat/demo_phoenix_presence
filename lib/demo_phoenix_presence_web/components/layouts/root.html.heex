@@ -7,6 +7,7 @@
     <.live_title default="DemoPhoenixPresence" suffix=" · Phoenix Framework">
       {assigns[:page_title]}
     </.live_title>
+    <script>window.userToken = "<%= assigns[:user_token] %>";</script>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
