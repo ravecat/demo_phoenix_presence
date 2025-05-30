@@ -12,6 +12,8 @@ defmodule DemoPhoenixPresence.Application do
       DemoPhoenixPresence.Repo,
       {DNSCluster, query: Application.get_env(:demo_phoenix_presence, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DemoPhoenixPresence.PubSub},
+      # Start the Presence system
+      DemoPhoenixPresenceWeb.Presence,
       # Start a worker by calling: DemoPhoenixPresence.Worker.start_link(arg)
       # {DemoPhoenixPresence.Worker, arg},
       # Start to serve requests, typically the last entry
