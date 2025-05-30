@@ -21,7 +21,13 @@ defmodule DemoPhoenixPresenceWeb.Router do
   scope "/", DemoPhoenixPresenceWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # Replace to live routes for presence demo
+    # get "/", PageController, :home
+
+    live_session :default,
+      on_mount: [{DemoPhoenixPresenceWeb.UserAuth, :mount_current_scope}] do
+      live "/", Live.Home, :index
+    end
   end
 
   # Other scopes may use custom stacks.

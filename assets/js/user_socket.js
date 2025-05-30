@@ -10,9 +10,6 @@ console.info("Setting up Phoenix socket...");
 
 let socket = new Socket("/socket", {
   params: { token: window.userToken },
-  logger: (kind, msg, data) => {
-    console.log(`${kind}: ${msg}`, data);
-  },
 });
 
 if (window.userToken) {
@@ -61,6 +58,7 @@ if (window.userToken) {
   //     end
   //
   // Finally, connect to the socket:
+  // socket.connect();
   socket.connect();
 
   // Now that you are connected, you can join channels with a topic:
