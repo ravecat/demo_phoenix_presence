@@ -19,13 +19,22 @@ defmodule DemoPhoenixPresenceWeb.Presence do
   end
 
   def fetch(topic, presences) do
-    Logger.debug("Fetching presences for #{topic}")
-    Logger.debug("Presences: #{inspect(presences)}")
+    Logger.info("Fetching presences for #{topic}")
+    Logger.info("Presences: #{inspect(presences)}")
 
     for {key, %{metas: [meta | metas]}} <- presences, into: %{} do
-      # user can be populated here from the database here we populate
-      # the name for demonstration purposes
-      {key, %{metas: [meta | metas], id: meta.id, user: %{email: meta.email}}}
+      total_click_count =
+        [meta | metas]
+        |> Enum.map(&Map.get(&1, :click_count, 0))
+        |> Enum.sum()
+
+      {key,
+       %{
+         metas: [meta | metas],
+         id: meta.id,
+         user: %{email: meta.email, click_count: total_click_count}
+       }}
+      |> dbg
     end
   end
 
@@ -71,4 +80,8 @@ defmodule DemoPhoenixPresenceWeb.Presence do
         DemoPhoenixPresence.PubSub,
         @proxy_topic_prefix <> @topic_prefix <> room_name
       )
+
+  def update(room_name, user_id, meta_or_map) do
+    update(self(), @topic_prefix <> room_name, user_id, meta_or_map)
+  end
 end

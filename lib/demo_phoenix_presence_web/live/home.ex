@@ -36,12 +36,24 @@ defmodule DemoPhoenixPresenceWeb.Live.Home do
         </div>
 
         <div class="flex">
-          <div class="w-full sm:w-auto">
-            <div :if={@current_scope} class="mt-10">
-              <h3 class="text-lg font-semibold mb-4">Online Users</h3>
+          <div class="w-full sm:w-auto flex-1">
+            <div :if={@current_scope} class="mt-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Online Users</h3>
+                <button phx-click="click" class="btn btn-primary btn-sm">
+                  Click me!
+                </button>
+              </div>
               <ul id="online_users" phx-update="stream">
-                <li :for={{dom_id, %{user: user, metas: metas}} <- @streams.presences} id={dom_id}>
-                  {user.email} ({length(metas)})
+                <li
+                  :for={{dom_id, %{user: user, metas: metas}} <- @streams.presences}
+                  id={dom_id}
+                  class="flex justify-between items-center py-1"
+                >
+                  <span>{user.email} ({length(metas)})</span>
+                  <span class="badge badge-secondary">
+                    clicks: {user.click_count}
+                  </span>
                 </li>
               </ul>
             </div>
@@ -64,7 +76,8 @@ defmodule DemoPhoenixPresenceWeb.Live.Home do
             meta = %{
               id: user.id,
               email: user.email,
-              online_at: inspect(System.system_time(:second))
+              online_at: inspect(System.system_time(:second)),
+              click_count: 0
             }
 
             Presence.track_user(room, user.id, meta)
@@ -72,7 +85,6 @@ defmodule DemoPhoenixPresenceWeb.Live.Home do
             stream(socket, :presences, Presence.list_online_users(room))
 
           _ ->
-            # Если current_scope или user не установлены, просто возвращаем socket
             socket
         end
       else
@@ -80,6 +92,23 @@ defmodule DemoPhoenixPresenceWeb.Live.Home do
       end
 
     {:ok, socket}
+  end
+
+
+  def handle_event("click", _params, socket) do
+    case socket.assigns do
+      %{current_scope: %{user: user}} when not is_nil(user) ->
+        room = "home"
+
+        Presence.update(room, user.id, fn meta ->
+          Map.update(meta, :click_count, 0, &(&1 + 1))
+        end)
+
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   def handle_info({Presence, {:join, presence}}, socket) do
